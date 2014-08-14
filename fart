@@ -1,0 +1,57 @@
+#!/usr/bin/python
+import os
+import sys
+import glob
+def FART(filename,repStr,withStr,debug,verbose):
+    f1 = open(filename, 'r')
+    src = f1.readlines()
+    f1.close()
+    if (not debug):
+        f2 = open(filename, 'w')
+    for line in src:
+        #f2.write(line.replace(repStr,withStr))
+        if (repStr in line):
+            if verbose:
+                print line.replace(repStr,'%s(--%s--)' % (withStr,repStr))
+            if (not debug):
+                line = line.replace(repStr,withStr)
+        if (not debug):
+            f2.write(line)
+    if (not debug):
+        f2.close()
+
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-f", "--file",
+                  action="store", dest="file",
+                  help="Supply the file name or filter, eg: 'RT.f' or '*.f'")
+parser.add_option("-r", "--replace",
+                  action="store", dest="replaceS",
+                  help="Give string to be replaced, eg: 'old_string' ")
+parser.add_option("-w", "--with",
+                  action="store", dest="withS",
+                  help="Give the new string, with which to replace the old, eg: 'new string'")
+parser.add_option("-t","--test",
+                  action="store_true",dest="test_only",default=False,
+                  help="Run in test mode (False). Echo only, no changes made")
+parser.add_option("-v","--verbose",
+                  action="store_true",dest="verbose",default=False,
+                  help="Run in verbose mode (False). Echo all changes made.")
+(options, args) = parser.parse_args()
+if not options.file:
+    parser.error('Filename not specified')
+if not options.replaceS:
+    parser.error('Replace not specified')
+if not options.withS:
+    parser.error('With not specified')
+
+
+if options.test_only:
+    print "Testing only"
+
+files = glob.glob(options.file)
+for ff in files:
+    print 'Replacing %s --> %s in file: %s' % (options.replaceS,options.withS,ff)
+    #if not options.test_only:
+    FART(ff,options.replaceS,options.withS,options.test_only,options.verbose)
